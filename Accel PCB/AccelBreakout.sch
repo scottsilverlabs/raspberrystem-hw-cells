@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.5.0">
+<eagle version="7.0.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -148,14 +148,6 @@
 <wire x1="-1.2625" y1="-0.975" x2="-1.2625" y2="0.975" width="0.127" layer="21"/>
 <wire x1="-1.27" y1="1.27" x2="1.27" y2="1.27" width="0.127" layer="21"/>
 </package>
-<package name="DIP1X6MALE">
-<pad name="1" x="-6.35" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="2" x="-3.81" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="3" x="-1.27" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="4" x="1.27" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="5" x="3.81" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="6" x="6.35" y="0" drill="1" shape="long" rot="R90"/>
-</package>
 <package name="ACCELDIR">
 <wire x1="0" y1="0" x2="0" y2="-2.54" width="0.4064" layer="21"/>
 <wire x1="0.635" y1="-1.905" x2="0" y2="-2.54" width="0.4064" layer="21"/>
@@ -186,18 +178,6 @@
 <pin name="AAGND" x="15.24" y="5.08" length="short" rot="R180"/>
 <pin name="SDA" x="15.24" y="10.16" length="short" rot="R180"/>
 </symbol>
-<symbol name="DIP1X6MALE">
-<wire x1="2.54" y1="-7.62" x2="-2.54" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="-7.62" x2="-2.54" y2="10.16" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="10.16" x2="2.54" y2="10.16" width="0.254" layer="94"/>
-<wire x1="2.54" y1="10.16" x2="2.54" y2="-7.62" width="0.254" layer="94"/>
-<pin name="1" x="0" y="-5.08" visible="pin" length="short" rot="R180"/>
-<pin name="2" x="0" y="-2.54" visible="pin" length="short" rot="R180"/>
-<pin name="3" x="0" y="0" visible="pin" length="short" rot="R180"/>
-<pin name="4" x="0" y="2.54" visible="pin" length="short" rot="R180"/>
-<pin name="5" x="0" y="5.08" visible="pin" length="short" rot="R180"/>
-<pin name="6" x="0" y="7.62" visible="pin" length="short" rot="R180"/>
-</symbol>
 <symbol name="ACCELDIR">
 <text x="-20.32" y="0" size="1.778" layer="94" font="vector">Accelerometer Directions</text>
 </symbol>
@@ -220,26 +200,6 @@
 <connect gate="G$1" pin="SDA" pad="10"/>
 <connect gate="G$1" pin="VDD" pad="1"/>
 <connect gate="G$1" pin="VDDIO" pad="8"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="DIP1X6MALE">
-<gates>
-<gate name="G$1" symbol="DIP1X6MALE" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="DIP1X6MALE">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-<connect gate="G$1" pin="5" pad="5"/>
-<connect gate="G$1" pin="6" pad="6"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -5578,6 +5538,45 @@ type 0309, grid 2.5 mm</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="OldScottSilver">
+<packages>
+<package name="DIP1X3MALE">
+<pad name="P$1" x="-2.54" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="P$2" x="0" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="P$3" x="2.54" y="0" drill="1" shape="long" rot="R90"/>
+</package>
+</packages>
+<symbols>
+<symbol name="DIP1X3MALE">
+<wire x1="-2.54" y1="5.08" x2="2.54" y2="5.08" width="0.254" layer="94"/>
+<wire x1="2.54" y1="5.08" x2="2.54" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="2.54" y1="-5.08" x2="-2.54" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="-5.08" x2="-2.54" y2="5.08" width="0.254" layer="94"/>
+<pin name="1" x="0" y="2.54" visible="pin" length="short"/>
+<pin name="2" x="0" y="0" visible="pin" length="short"/>
+<pin name="3" x="0" y="-2.54" visible="pin" length="short"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="DIP1X3MALE">
+<gates>
+<gate name="G$1" symbol="DIP1X3MALE" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="DIP1X3MALE">
+<connects>
+<connect gate="G$1" pin="1" pad="P$1"/>
+<connect gate="G$1" pin="2" pad="P$2"/>
+<connect gate="G$1" pin="3" pad="P$3"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -5604,8 +5603,9 @@ type 0309, grid 2.5 mm</description>
 <part name="R2" library="resistor" deviceset="R-US_" device="R0603" value="10K"/>
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="GND1" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="U$1" library="ScottSilver" deviceset="DIP1X6MALE" device=""/>
 <part name="U$2" library="ScottSilver" deviceset="ACCELDIR" device=""/>
+<part name="U$3" library="OldScottSilver" deviceset="DIP1X3MALE" device=""/>
+<part name="U$4" library="OldScottSilver" deviceset="DIP1X3MALE" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -5627,9 +5627,10 @@ type 0309, grid 2.5 mm</description>
 <instance part="R1" gate="G$1" x="20.32" y="60.96" rot="R90"/>
 <instance part="R2" gate="G$1" x="83.82" y="66.04" rot="R90"/>
 <instance part="SUPPLY1" gate="G$1" x="0" y="38.1"/>
-<instance part="GND1" gate="1" x="0" y="22.86"/>
-<instance part="U$1" gate="G$1" x="-10.16" y="30.48" rot="MR0"/>
+<instance part="GND1" gate="1" x="0" y="17.78"/>
 <instance part="U$2" gate="G$1" x="81.28" y="20.32"/>
+<instance part="U$3" gate="G$1" x="-17.78" y="35.56"/>
+<instance part="U$4" gate="G$1" x="-17.78" y="22.86"/>
 </instances>
 <busses>
 </busses>
@@ -5667,8 +5668,8 @@ type 0309, grid 2.5 mm</description>
 </segment>
 <segment>
 <pinref part="SUPPLY1" gate="G$1" pin="VCC"/>
-<wire x1="-10.16" y1="38.1" x2="0" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="6"/>
+<wire x1="-17.78" y1="38.1" x2="0" y2="38.1" width="0.1524" layer="91"/>
+<pinref part="U$3" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -5701,8 +5702,8 @@ type 0309, grid 2.5 mm</description>
 </segment>
 <segment>
 <pinref part="GND1" gate="1" pin="GND"/>
-<wire x1="0" y1="25.4" x2="-10.16" y2="25.4" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="1"/>
+<wire x1="0" y1="20.32" x2="-17.78" y2="20.32" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$1" pin="3"/>
 </segment>
 </net>
 <net name="N$34" class="0">
@@ -5722,8 +5723,8 @@ type 0309, grid 2.5 mm</description>
 </segment>
 <segment>
 <label x="0" y="35.56" size="1.016" layer="95" xref="yes"/>
-<wire x1="-10.16" y1="35.56" x2="0" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="5"/>
+<wire x1="-17.78" y1="35.56" x2="0" y2="35.56" width="0.1524" layer="91"/>
+<pinref part="U$3" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="SCL" class="0">
@@ -5736,8 +5737,8 @@ type 0309, grid 2.5 mm</description>
 </segment>
 <segment>
 <label x="0" y="33.02" size="1.016" layer="95" xref="yes"/>
-<wire x1="-10.16" y1="33.02" x2="0" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="4"/>
+<wire x1="-17.78" y1="33.02" x2="0" y2="33.02" width="0.1524" layer="91"/>
+<pinref part="U$3" gate="G$1" pin="3"/>
 </segment>
 </net>
 <net name="INT1" class="0">
@@ -5747,9 +5748,9 @@ type 0309, grid 2.5 mm</description>
 <label x="35.56" y="50.8" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<label x="0" y="30.48" size="1.016" layer="95" xref="yes"/>
-<wire x1="-10.16" y1="30.48" x2="0" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="3"/>
+<label x="0" y="25.4" size="1.016" layer="95" xref="yes"/>
+<wire x1="-17.78" y1="25.4" x2="0" y2="25.4" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="INT2" class="0">
@@ -5760,9 +5761,9 @@ type 0309, grid 2.5 mm</description>
 <label x="43.18" y="25.4" size="1.778" layer="95" rot="R270" xref="yes"/>
 </segment>
 <segment>
-<label x="0" y="27.94" size="1.016" layer="95" xref="yes"/>
-<wire x1="-10.16" y1="27.94" x2="0" y2="27.94" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="2"/>
+<label x="0" y="22.86" size="1.016" layer="95" xref="yes"/>
+<wire x1="-17.78" y1="22.86" x2="0" y2="22.86" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$1" pin="2"/>
 </segment>
 </net>
 </nets>
