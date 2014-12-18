@@ -53,13 +53,15 @@ volatile unsigned char arr2[PACKED_FB_SIZE];
 volatile unsigned char fb[NUM_COLS][NUM_ROWS];
 volatile unsigned char * swap;
 volatile unsigned char * show;
-volatile unsigned char * store;
-volatile int count = 0;
-unsigned char isr_occured = 0;
+volatile register unsigned char count asm("r3");
+volatile register unsigned char * store asm("r4");
+volatile register unsigned char isr_occured asm("r5");
 
-// This interrupt fires when the SPDR register is done loading a new byte
-// Load data for next matrix
-// TBD: required?
+// ISR for SPI byte received.
+//
+// Implemented as a ring buffer of size PACKED_FB_SIZE bytes.  The newest byte
+// is received, and the oldest byte in the ring is registered to be sent out on
+// next transmit.
 ISR(SPI_STC_vect) {
     store[count] = SPDR;
     count = (count + 1) & (PACKED_FB_SIZE - 1);
@@ -71,12 +73,13 @@ int main(void) {
     store = arr1;
     show = arr2;
 
-    // Set input/output ports
-    DDRB = (1<<PORTB4);
-    DDRD = 0xFF;
+    // Set output ports (all others remain inputs)
+    DDRB = (1<<PORTB4); // MISO
+    DDRD = 0xFF; // All columns
     DDRC = ROW0 | ROW2 | ROW3 | ROW4 | ROW5 | ROW6 | ROW7;
     DDRA = ROW1;
-    PORTB |= (1<<PORTB7);
+
+    // CS pull-up
     PORTB |= (1<<PORTB2);
 
     // Initialize SPI
@@ -101,9 +104,10 @@ int main(void) {
                 }
             }
 
-    // Initialize output data
-    // Needed?
-    SPDR = show[count];
+    // Prep SPI transmit with first byte from ring buffer
+    isr_occured = 0;
+    count = 0;
+    SPDR = store[count];
 
     for(;;) {
         // If it has just received data
