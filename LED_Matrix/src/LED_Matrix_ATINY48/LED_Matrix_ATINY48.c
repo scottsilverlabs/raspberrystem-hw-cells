@@ -53,9 +53,12 @@ volatile unsigned char arr2[PACKED_FB_SIZE];
 volatile unsigned char fb[NUM_COLS][NUM_ROWS];
 volatile unsigned char * swap;
 volatile unsigned char * show;
-volatile register unsigned char count asm("r3");
+
+// Count needs to be in r16 and up in order to allow the ANDI mnemonic
+volatile register unsigned char count asm("r16");
+volatile register unsigned char isr_hasnt_occured asm("r3");
+// store is a word (16-bit), so it uses r4 and r5, too!
 volatile register unsigned char * store asm("r4");
-volatile register unsigned char isr_occured asm("r5");
 
 // ISR for SPI byte received.
 //
@@ -64,9 +67,20 @@ volatile register unsigned char isr_occured asm("r5");
 // next transmit.
 ISR(SPI_STC_vect) {
     store[count] = SPDR;
-    count = (count + 1) & (PACKED_FB_SIZE - 1);
+
+    //Optimized version of:
+    //  count = (count + 1) & (PACKED_FB_SIZE - 1);
+    asm volatile(
+        "inc	r16\n\t"
+        "andi	r16, %0\n\t"
+        :: "I" (PACKED_FB_SIZE - 1));
+
     SPDR = store[count];
-    isr_occured = 1;
+
+    // Optimization: Important that this flag's polarity has been chosen so it
+    // can be set to 0 here in the ISR.  Setting to zero is a faster operation
+    // than setting to one (for registers < r16).
+    isr_hasnt_occured = 0;
 }
 
 int main(void) {
@@ -105,13 +119,13 @@ int main(void) {
             }
 
     // Prep SPI transmit with first byte from ring buffer
-    isr_occured = 0;
+    isr_hasnt_occured = 1;
     count = 0;
     SPDR = store[count];
 
     for(;;) {
         // If it has just received data
-        if (isr_occured && ! IS_CS_ACTIVE()) {
+        if ( ! isr_hasnt_occured && ! IS_CS_ACTIVE()) {
             // Swap store/show SPI data buffer pointers and reset for the next
             // ISR.  Don't let ISR occur here, although we still must get it
             // in a reasonable time or we'll overwrite the SPI data buffer.
@@ -119,7 +133,7 @@ int main(void) {
             swap = store;
             store = show;
             show = swap;
-            isr_occured = 0;
+            isr_hasnt_occured = 1;
             count = 0;
             sei();
 
