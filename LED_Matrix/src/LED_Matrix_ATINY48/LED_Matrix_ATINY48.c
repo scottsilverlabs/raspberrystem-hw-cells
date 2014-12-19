@@ -45,8 +45,9 @@
 #define PACKED_FB_SIZE 32
 
 #define REFRESH_RATE_HZ 120
-#define REFRESH_RATE_US (1000000/120)
-#define DELAY_US (REFRESH_RATE_US / ( NUM_COLS * NUM_PWM_SLOTS))
+#define REFRESH_RATE_US (1000000/REFRESH_RATE_HZ)
+#define POST_BARS_DELAY_US (200000)
+#define POST_PLUS_DELAY_US (100000)
 
 volatile unsigned char arr1[PACKED_FB_SIZE];
 volatile unsigned char arr2[PACKED_FB_SIZE];
@@ -54,8 +55,20 @@ volatile unsigned char fb[NUM_COLS][NUM_ROWS];
 volatile unsigned char * swap;
 volatile unsigned char * show;
 
+typedef enum {
+    START,
+    POST_VERTICAL_BARS,
+    POST_HORIZONTAL_BARS,
+    POST_PLUS,
+    POST_PLUS_2,
+    RUNNING,
+    RUNNING_1,
+} STATE;
+
+// All variables used in the ISR have been hand optimized to registers
+//
 // Count needs to be in r16 and up in order to allow the ANDI mnemonic
-volatile register unsigned char count asm("r16");
+volatile register unsigned char index asm("r16");
 volatile register unsigned char isr_hasnt_occured asm("r3");
 // store is a word (16-bit), so it uses r4 and r5, too!
 volatile register unsigned char * store asm("r4");
@@ -66,16 +79,16 @@ volatile register unsigned char * store asm("r4");
 // is received, and the oldest byte in the ring is registered to be sent out on
 // next transmit.
 ISR(SPI_STC_vect) {
-    store[count] = SPDR;
+    store[index] = SPDR;
 
     //Optimized version of:
-    //  count = (count + 1) & (PACKED_FB_SIZE - 1);
+    //  index = (index + 1) & (PACKED_FB_SIZE - 1);
     asm volatile(
         "inc	r16\n\t"
         "andi	r16, %0\n\t"
         :: "I" (PACKED_FB_SIZE - 1));
 
-    SPDR = store[count];
+    SPDR = store[index];
 
     // Optimization: Important that this flag's polarity has been chosen so it
     // can be set to 0 here in the ISR.  Setting to zero is a faster operation
@@ -84,6 +97,11 @@ ISR(SPI_STC_vect) {
 }
 
 int main(void) {
+    STATE state = START;
+    int post_count = 0;
+    int post_col = 0;
+    int post_row = 0;
+
     store = arr1;
     show = arr2;
 
@@ -101,29 +119,108 @@ int main(void) {
     SPCR &= ~((1 << CPHA) | (1 << CPOL));
     SPSR = (1 << SPI2X);
 
-    // Enable global interrupts
-    sei();
-
+    // Initialize SPI ring buffers
     for(int i = 0; i < PACKED_FB_SIZE; i++){
         show[i] = 0;
         store[i] = 0;
-        show[i] = ((0+i)&31)/4 | ((((0+i)&31)/4) << 4);
     }
-            int i = 0;
-            for (int col = 0; col < NUM_COLS; col++) {
-                for (int row = 0; row < NUM_ROWS; row += 2) {
-                    fb[col][row] = show[i] & 0xF;
-                    fb[col][row + 1] = show[i] >> 4;
-                    i++;
-                }
-            }
 
     // Prep SPI transmit with first byte from ring buffer
     isr_hasnt_occured = 1;
-    count = 0;
-    SPDR = store[count];
+    index = 0;
+    SPDR = store[index];
 
     for(;;) {
+        if (state == RUNNING_1) {
+            // Do nothing.  This state is out of order, because its the
+            // "normal" state, and therefore we've optimized by putting the
+            // test for it first.
+
+        } else if (state == START) {
+            state = POST_VERTICAL_BARS;
+
+        } else if (state == POST_VERTICAL_BARS) {
+            if (post_count < (POST_BARS_DELAY_US / REFRESH_RATE_US)) {
+                post_count++;
+            } else {
+                post_count = 0;
+                for (int col = 0; col < NUM_COLS; col++) {
+                    for (int row = 0; row < NUM_ROWS; row++) {
+                        fb[col][row] = 0xF ? col == post_col : 0;
+                    }
+                }
+                post_col++;
+                if (post_col == NUM_COLS) {
+                    state = POST_HORIZONTAL_BARS;
+                }
+            }
+
+        } else if (state == POST_HORIZONTAL_BARS) {
+            if (post_count < (POST_BARS_DELAY_US / REFRESH_RATE_US)) {
+                post_count++;
+            } else {
+                post_count = 0;
+                for (int col = 0; col < NUM_COLS; col++) {
+                    for (int row = 0; row < NUM_ROWS; row++) {
+                        fb[col][row] = 0xF ? row == post_row : 0;
+                    }
+                }
+                post_row++;
+                if (post_row == NUM_ROWS) {
+                    if (IS_CS_ACTIVE()) {
+                        state = POST_PLUS;
+                    } else {
+                        state = RUNNING;
+                    }
+                }
+            }
+
+        } else if (state == POST_PLUS) {
+            // Assuming NUM_COLS == NUM_ROWS, create concentric squares of
+            // varying intensities
+            for (int i = 0; i < NUM_COLS/2; i++) {
+                for (int r = i; r < NUM_COLS - i; r++) {
+                    int color = 4 * i;
+                    fb[r][i] = color;
+                    fb[r][NUM_COLS - i - 1] = color;
+                    fb[i][r] = color;
+                    fb[NUM_COLS - i - 1][r] = color;
+                }
+            }
+            state = POST_PLUS_2;
+
+        } else if (state == POST_PLUS_2) {
+            // Increment the intensity of all pixels in the framebuffer.
+#if 1
+            if (post_count < (POST_PLUS_DELAY_US / REFRESH_RATE_US)) {
+                post_count++;
+            } else {
+                post_count = 0;
+                for (int col = 0; col < NUM_COLS; col++) {
+                    for (int row = 0; row < NUM_ROWS; row++) {
+                        fb[col][row] = (fb[col][row] + 1) & 0xF;
+                    }
+                }
+            }
+#endif
+
+            if ( ! IS_CS_ACTIVE()) {
+                state = RUNNING;
+            }
+
+        } else if (state == RUNNING) {
+            // Clear FB
+            for (int col = 0; col < NUM_COLS; col++) {
+                for (int row = 0; row < NUM_ROWS; row++) {
+                    fb[col][row] = 0;
+                }
+            }
+
+            // Enable global interrupts, allowing SPI recevies
+            sei();
+            state = RUNNING_1;
+        }
+
         // If it has just received data
         if ( ! isr_hasnt_occured && ! IS_CS_ACTIVE()) {
             // Swap store/show SPI data buffer pointers and reset for the next
@@ -134,7 +231,7 @@ int main(void) {
             store = show;
             show = swap;
             isr_hasnt_occured = 1;
-            count = 0;
+            index = 0;
             sei();
 
             // Copy from packed SPI data to expanded frame buffer.  Rationale:
@@ -176,7 +273,7 @@ int main(void) {
 
                     // It may be possible to save power by sleeping here,
                     // instead of a busy loop
-                    _delay_us(DELAY_US);
+                    _delay_us(REFRESH_RATE_US / ( NUM_COLS * NUM_PWM_SLOTS));
                 }
             }
         }
