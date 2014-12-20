@@ -79,27 +79,27 @@ typedef enum {
 // All variables used in the ISR have been hand optimized to registers
 //
 // Count needs to be in r16 and up in order to allow the ANDI mnemonic
-volatile register unsigned char index asm("r16");
-volatile register unsigned char isr_hasnt_occured asm("r3");
+register unsigned char store_index asm("r16");
+register unsigned char isr_hasnt_occured asm("r3");
 // store is a word (16-bit), so it uses r4 and r5, too!
 volatile register unsigned char * store asm("r4");
 
 // ISR for SPI byte received.
 //
 // Implemented as a ring buffer of size PACKED_FB_SIZE bytes.  The newest byte
-// is received, and the oldest byte in the ring is registered to be sent out on
+// is received, and the byte in the ring is registered to be sent out on
 // next transmit.
 ISR(SPI_STC_vect) {
-    store[index] = SPDR;
+    store[store_index] = SPDR;
 
     //Optimized version of:
-    //  index = (index + 1) & (PACKED_FB_SIZE - 1);
+    //  store_index = (store_index + 1) & (PACKED_FB_SIZE - 1);
     asm volatile(
         "inc	r16\n\t"
         "andi	r16, %0\n\t"
         :: "I" (PACKED_FB_SIZE - 1));
 
-    SPDR = store[index];
+    SPDR = store[store_index];
 
     // Optimization: Important that this flag's polarity has been chosen so it
     // can be set to 0 here in the ISR.  Setting to zero is a faster operation
@@ -113,6 +113,8 @@ ISR(SPI_STC_vect) {
 // (and conversely too similar on the high end).  Instead, convert all colors
 // to a PWM using an approximate geometric sequence of 16 values, with the
 // ratio 1.32 (determined experimentally to give a max value of 63).
+//
+// This list must go from 0 to NUM_PWM_SLOTS
 const unsigned char color_to_pwm_mapping[NUM_COLORS] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 15, 20, 26, 35, 47, 63,
 };
@@ -129,9 +131,6 @@ int main(void) {
     int post_col = 0;
     int post_row = 0;
 
-    store = arr1;
-    show = arr2;
-
     // Set output ports (all others remain inputs)
     DDRB = (1<<PORTB4); // MISO
     DDRD = 0xFF; // All columns
@@ -147,13 +146,16 @@ int main(void) {
     SPSR = (1 << SPI2X);
 
     // Initialize SPI ring buffers
-    memset(show, 0, sizeof(show));
-    memset(store, 0, sizeof(show));
+    memset((void *) arr1, 0, sizeof(arr1));
+    memset((void *) arr2, 0, sizeof(arr2));
+    store = arr1;
+    show = arr2;
+
 
     // Prep SPI transmit with first byte from ring buffer
     isr_hasnt_occured = 1;
-    index = 0;
-    SPDR = store[index];
+    store_index = 0;
+    SPDR = store[store_index];
 
     for(;;) {
         if (state == RUNNING_1) {
@@ -169,7 +171,7 @@ int main(void) {
                 post_count++;
             } else {
                 post_count = 0;
-                memset(fb, 0, sizeof(fb));
+                memset((void *) fb, 0, sizeof(fb));
                 for (unsigned char row = 0; row < NUM_ROWS; row++) {
                     fb[post_col][row] = color_to_pwm(MAX_COLOR);
                 }
@@ -185,7 +187,7 @@ int main(void) {
                 post_count++;
             } else {
                 post_count = 0;
-                memset(fb, 0, sizeof(fb));
+                memset((void *) fb, 0, sizeof(fb));
                 for (unsigned char col = 0; col < NUM_ROWS; col++) {
                     fb[col][post_row] = color_to_pwm(MAX_COLOR);
                 }
@@ -272,7 +274,7 @@ int main(void) {
             }
 
         } else if (state == RUNNING) {
-            memset(fb, 0, sizeof(fb));
+            memset((void *) fb, 0, sizeof(fb));
 
             // Enable global interrupts, allowing SPI recevies
             sei();
@@ -289,7 +291,7 @@ int main(void) {
             store = show;
             show = swap;
             isr_hasnt_occured = 1;
-            index = 0;
+            store_index = 0;
             sei();
 
             // Copy from packed SPI data to expanded frame buffer.  Rationale:
