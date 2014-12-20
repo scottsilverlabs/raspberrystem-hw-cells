@@ -41,7 +41,7 @@
 #define NUM_COLORS 16
 #define MAX_COLOR (NUM_COLORS - 1)
 
-#define NUM_PWM_SLOTS (NUM_COLORS - 1)
+#define NUM_PWM_SLOTS 63
 
 #define IS_CS_ACTIVE() ( ! ((PINB >> 2) & 1))
 
@@ -49,15 +49,20 @@
 
 #define REFRESH_RATE_HZ 120
 #define REFRESH_RATE_US (1000000/REFRESH_RATE_HZ)
-#define POST_BARS_DELAY_US (150000)
-#define POST_PLUS_DELAY_US (100000)
-#define POST_PLUS_GRADIENT_US (2000000)
+#define POST_BARS_DELAY_US (40000)
+#define POST_PLUS_DELAY_US (20000)
+#define POST_PLUS_GRADIENT_US (1000000)
 
+// SPI ping-pong packed framebuffer storage
 volatile unsigned char arr1[PACKED_FB_SIZE];
 volatile unsigned char arr2[PACKED_FB_SIZE];
-volatile unsigned char fb[NUM_COLS][NUM_ROWS];
 volatile unsigned char * swap;
 volatile unsigned char * show;
+
+// Unpacked framebuffer.  Each pixel is a color converted to PWM value.
+// fb2 is just for use for POST concentric squares test.
+volatile unsigned char fb[NUM_COLS][NUM_ROWS];
+volatile unsigned char fb2[NUM_COLS][NUM_ROWS];
 
 typedef enum {
     START,
@@ -101,6 +106,22 @@ ISR(SPI_STC_vect) {
     // than setting to one (for registers < r16).
     isr_hasnt_occured = 0;
 }
+
+// PWM mapping
+//
+// Linear colors converted directly to PWM appear too different on the low end
+// (and conversely too similar on the high end).  Instead, convert all colors
+// to a PWM using an approximate geometric sequence of 16 values, with the
+// ratio 1.32 (determined experimentally to give a max value of 63).
+const unsigned char color_to_pwm_mapping[NUM_COLORS] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 15, 20, 26, 35, 47, 63,
+};
+
+inline unsigned char color_to_pwm(unsigned char color)
+{
+    return color_to_pwm_mapping[color & MAX_COLOR];
+}
+
 
 int main(void) {
     STATE state = START;
@@ -149,8 +170,8 @@ int main(void) {
             } else {
                 post_count = 0;
                 memset(fb, 0, sizeof(fb));
-                for (int row = 0; row < NUM_ROWS; row++) {
-                    fb[post_col][row] = MAX_COLOR;
+                for (unsigned char row = 0; row < NUM_ROWS; row++) {
+                    fb[post_col][row] = color_to_pwm(MAX_COLOR);
                 }
 
                 post_col++;
@@ -165,8 +186,8 @@ int main(void) {
             } else {
                 post_count = 0;
                 memset(fb, 0, sizeof(fb));
-                for (int col = 0; col < NUM_ROWS; col++) {
-                    fb[col][post_row] = MAX_COLOR;
+                for (unsigned char col = 0; col < NUM_ROWS; col++) {
+                    fb[col][post_row] = color_to_pwm(MAX_COLOR);
                 }
 
                 post_row++;
@@ -181,14 +202,14 @@ int main(void) {
 
         } else if (state == POST_PLUS) {
             // Fill the framebuffer with a gradient of all colors
-            for (int col = 0; col < NUM_COLS; col++) {
-                for (int row = 0; row < NUM_ROWS/2; row++) {
-                    fb[col][row] = col;
+            for (unsigned char col = 0; col < NUM_COLS; col++) {
+                for (unsigned char row = 0; row < NUM_ROWS/2; row++) {
+                    fb[col][row] = color_to_pwm(col);
                 }
             }
-            for (int col = 0; col < NUM_COLS; col++) {
-                for (int row = NUM_ROWS/2; row < NUM_ROWS; row++) {
-                    fb[col][row] = MAX_COLOR - col;
+            for (unsigned char col = 0; col < NUM_COLS; col++) {
+                for (unsigned char row = NUM_ROWS/2; row < NUM_ROWS; row++) {
+                    fb[col][row] = color_to_pwm(MAX_COLOR - col);
                 }
             }
             post_count = 0;
@@ -209,13 +230,13 @@ int main(void) {
         } else if (state == POST_PLUS_3) {
             // Assuming NUM_COLS == NUM_ROWS, create concentric squares of
             // varying intensities
-            for (int i = 0; i < NUM_COLS/2; i++) {
-                for (int r = i; r < NUM_COLS - i; r++) {
-                    int color = 4 * i;
-                    fb[r][i] = color;
-                    fb[r][NUM_COLS - i - 1] = color;
-                    fb[i][r] = color;
-                    fb[NUM_COLS - i - 1][r] = color;
+            for (unsigned char i = 0; i < NUM_COLS/2; i++) {
+                for (unsigned char r = i; r < NUM_COLS - i; r++) {
+                    unsigned char color = 4 * i;
+                    fb2[r][i] = color;
+                    fb2[r][NUM_COLS - i - 1] = color;
+                    fb2[i][r] = color;
+                    fb2[NUM_COLS - i - 1][r] = color;
                 }
             }
             state = POST_PLUS_4;
@@ -226,9 +247,22 @@ int main(void) {
                 post_count++;
             } else {
                 post_count = 0;
-                for (int col = 0; col < NUM_COLS; col++) {
-                    for (int row = 0; row < NUM_ROWS; row++) {
-                        fb[col][row] = (fb[col][row] + 1) % MAX_COLOR;
+                for (unsigned char col = 0; col < NUM_COLS; col++) {
+                    for (unsigned char row = 0; row < NUM_ROWS; row++) {
+                        if (fb2[col][row] == 0xF) {
+                            fb2[col][row] = 0x1E;
+                        } else if (fb2[col][row] == 0x11) {
+                            fb2[col][row] = 0x0;
+                        } else if (fb2[col][row] < 0x10) {
+                            fb2[col][row]++;
+                        } else {
+                            fb2[col][row]--;
+                        }
+                    }
+                }
+                for (unsigned char col = 0; col < NUM_COLS; col++) {
+                    for (unsigned char row = 0; row < NUM_ROWS; row++) {
+                        fb[col][row] = color_to_pwm(fb2[col][row]);
                     }
                 }
             }
@@ -261,25 +295,25 @@ int main(void) {
             // Copy from packed SPI data to expanded frame buffer.  Rationale:
             // unpack here to minimize work in display loop which occurs more
             // frequently.
-            int i = 0;
-            for (int col = 0; col < NUM_COLS; col++) {
-                for (int row = 0; row < NUM_ROWS; row += 2) {
-                    fb[col][row] = show[i] & MAX_COLOR;
-                    fb[col][row + 1] = show[i] >> 4;
+            unsigned char i = 0;
+            for (unsigned char col = 0; col < NUM_COLS; col++) {
+                for (unsigned char row = 0; row < NUM_ROWS; row += 2) {
+                    fb[col][row] = color_to_pwm(show[i] & MAX_COLOR);
+                    fb[col][row + 1] = color_to_pwm(show[i] >> 4);
                     i++;
                 }
             }
         } else {
             // Scan columns
-            for(int col = 0; col < NUM_COLS; col++) {
+            for(unsigned char col = 0; col < NUM_COLS; col++) {
                 // Output PWM for each row
-                for(int pwm = 0; pwm < NUM_PWM_SLOTS; pwm++) {
+                for(unsigned char pwm = 0; pwm < NUM_PWM_SLOTS; pwm++) {
                     // Write all rows for given column - shut off all columns
                     // while writing rows to have a clean turn-on for the
                     // column.  Careful!!!  Not all rows are on the same output
                     // port!
-                    int porta;
-                    int portc;
+                    unsigned char porta;
+                    unsigned char portc;
                     COL_PORT = 0x00;
                     porta = 0;
                     portc = 0;
