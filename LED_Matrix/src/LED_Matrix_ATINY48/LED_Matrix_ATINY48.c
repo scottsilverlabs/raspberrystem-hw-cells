@@ -20,6 +20,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
+#include <string.h>
 
 // The column port fits nicely on one port, where each pin maps directly to a
 // column - this makes column scanning easy.  Not so with the rows, which have
@@ -38,6 +39,8 @@
 #define NUM_ROWS 8
 
 #define NUM_COLORS 16
+#define MAX_COLOR (NUM_COLORS - 1)
+
 #define NUM_PWM_SLOTS (NUM_COLORS - 1)
 
 #define IS_CS_ACTIVE() ( ! ((PINB >> 2) & 1))
@@ -46,8 +49,9 @@
 
 #define REFRESH_RATE_HZ 120
 #define REFRESH_RATE_US (1000000/REFRESH_RATE_HZ)
-#define POST_BARS_DELAY_US (200000)
+#define POST_BARS_DELAY_US (150000)
 #define POST_PLUS_DELAY_US (100000)
+#define POST_PLUS_GRADIENT_US (2000000)
 
 volatile unsigned char arr1[PACKED_FB_SIZE];
 volatile unsigned char arr2[PACKED_FB_SIZE];
@@ -61,6 +65,8 @@ typedef enum {
     POST_HORIZONTAL_BARS,
     POST_PLUS,
     POST_PLUS_2,
+    POST_PLUS_3,
+    POST_PLUS_4,
     RUNNING,
     RUNNING_1,
 } STATE;
@@ -120,10 +126,8 @@ int main(void) {
     SPSR = (1 << SPI2X);
 
     // Initialize SPI ring buffers
-    for(int i = 0; i < PACKED_FB_SIZE; i++){
-        show[i] = 0;
-        store[i] = 0;
-    }
+    memset(show, 0, sizeof(show));
+    memset(store, 0, sizeof(show));
 
     // Prep SPI transmit with first byte from ring buffer
     isr_hasnt_occured = 1;
@@ -144,11 +148,11 @@ int main(void) {
                 post_count++;
             } else {
                 post_count = 0;
-                for (int col = 0; col < NUM_COLS; col++) {
-                    for (int row = 0; row < NUM_ROWS; row++) {
-                        fb[col][row] = 0xF ? col == post_col : 0;
-                    }
+                memset(fb, 0, sizeof(fb));
+                for (int row = 0; row < NUM_ROWS; row++) {
+                    fb[post_col][row] = MAX_COLOR;
                 }
+
                 post_col++;
                 if (post_col == NUM_COLS) {
                     state = POST_HORIZONTAL_BARS;
@@ -160,11 +164,11 @@ int main(void) {
                 post_count++;
             } else {
                 post_count = 0;
-                for (int col = 0; col < NUM_COLS; col++) {
-                    for (int row = 0; row < NUM_ROWS; row++) {
-                        fb[col][row] = 0xF ? row == post_row : 0;
-                    }
+                memset(fb, 0, sizeof(fb));
+                for (int col = 0; col < NUM_ROWS; col++) {
+                    fb[col][post_row] = MAX_COLOR;
                 }
+
                 post_row++;
                 if (post_row == NUM_ROWS) {
                     if (IS_CS_ACTIVE()) {
@@ -176,6 +180,33 @@ int main(void) {
             }
 
         } else if (state == POST_PLUS) {
+            // Fill the framebuffer with a gradient of all colors
+            for (int col = 0; col < NUM_COLS; col++) {
+                for (int row = 0; row < NUM_ROWS/2; row++) {
+                    fb[col][row] = col;
+                }
+            }
+            for (int col = 0; col < NUM_COLS; col++) {
+                for (int row = NUM_ROWS/2; row < NUM_ROWS; row++) {
+                    fb[col][row] = MAX_COLOR - col;
+                }
+            }
+            post_count = 0;
+            state = POST_PLUS_2;
+
+        } else if (state == POST_PLUS_2) {
+            // State on the gradient for a while
+            if (post_count < (POST_PLUS_GRADIENT_US / REFRESH_RATE_US)) {
+                post_count++;
+            } else {
+                state = POST_PLUS_3;
+            }
+
+            if ( ! IS_CS_ACTIVE()) {
+                state = RUNNING;
+            }
+
+        } else if (state == POST_PLUS_3) {
             // Assuming NUM_COLS == NUM_ROWS, create concentric squares of
             // varying intensities
             for (int i = 0; i < NUM_COLS/2; i++) {
@@ -187,34 +218,27 @@ int main(void) {
                     fb[NUM_COLS - i - 1][r] = color;
                 }
             }
-            state = POST_PLUS_2;
+            state = POST_PLUS_4;
 
-        } else if (state == POST_PLUS_2) {
+        } else if (state == POST_PLUS_4) {
             // Increment the intensity of all pixels in the framebuffer.
-#if 1
             if (post_count < (POST_PLUS_DELAY_US / REFRESH_RATE_US)) {
                 post_count++;
             } else {
                 post_count = 0;
                 for (int col = 0; col < NUM_COLS; col++) {
                     for (int row = 0; row < NUM_ROWS; row++) {
-                        fb[col][row] = (fb[col][row] + 1) & 0xF;
+                        fb[col][row] = (fb[col][row] + 1) % MAX_COLOR;
                     }
                 }
             }
-#endif
 
             if ( ! IS_CS_ACTIVE()) {
                 state = RUNNING;
             }
 
         } else if (state == RUNNING) {
-            // Clear FB
-            for (int col = 0; col < NUM_COLS; col++) {
-                for (int row = 0; row < NUM_ROWS; row++) {
-                    fb[col][row] = 0;
-                }
-            }
+            memset(fb, 0, sizeof(fb));
 
             // Enable global interrupts, allowing SPI recevies
             sei();
@@ -240,7 +264,7 @@ int main(void) {
             int i = 0;
             for (int col = 0; col < NUM_COLS; col++) {
                 for (int row = 0; row < NUM_ROWS; row += 2) {
-                    fb[col][row] = show[i] & 0xF;
+                    fb[col][row] = show[i] & MAX_COLOR;
                     fb[col][row + 1] = show[i] >> 4;
                     i++;
                 }
