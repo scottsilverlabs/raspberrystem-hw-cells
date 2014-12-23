@@ -132,8 +132,8 @@
 <wire x1="32" y1="0" x2="32" y2="32" width="0" layer="20"/>
 <wire x1="32" y1="32" x2="0" y2="32" width="0" layer="20"/>
 <text x="31.496" y="22.86" size="1.27" layer="22" font="vector" rot="MR0">VCC</text>
-<text x="31.496" y="20.32" size="1.27" layer="22" font="vector" rot="MR0">SCK</text>
-<text x="31.496" y="17.78" size="1.27" layer="22" font="vector" rot="MR0">DOUT</text>
+<text x="31.496" y="20.32" size="1.27" layer="22" font="vector" rot="MR0">CLK</text>
+<text x="31.496" y="17.78" size="1.27" layer="22" font="vector" rot="MR0">OUT</text>
 <text x="31.496" y="15.24" size="1.27" layer="22" font="vector" rot="MR0">CS</text>
 <text x="31.496" y="12.7" size="1.27" layer="22" font="vector" rot="MR0">RST</text>
 <text x="31.496" y="10.541" size="1.27" layer="22" font="vector" rot="MR0">GND</text>
@@ -156,15 +156,17 @@
 <wire x1="25.781" y1="10.668" x2="0.381" y2="10.668" width="0.2032" layer="22"/>
 <wire x1="27.94" y1="13.208" x2="0.381" y2="13.208" width="0.2032" layer="22"/>
 <wire x1="28.829" y1="15.748" x2="0.381" y2="15.748" width="0.2032" layer="22"/>
-<wire x1="26.797" y1="18.288" x2="0.381" y2="18.288" width="0.2032" layer="22"/>
+<wire x1="26.797" y1="18.288" x2="2.286" y2="18.288" width="0.2032" layer="22"/>
 <wire x1="27.686" y1="20.828" x2="0.381" y2="20.828" width="0.2032" layer="22"/>
 <wire x1="27.686" y1="23.368" x2="0.381" y2="23.368" width="0.2032" layer="22"/>
 <rectangle x1="28.194" y1="10.16" x2="31.877" y2="24.257" layer="43"/>
-<rectangle x1="26.797" y1="17.399" x2="32.004" y2="19.304" layer="43"/>
 <wire x1="25.781" y1="10.668" x2="26.289" y2="11.176" width="0.2032" layer="22"/>
 <wire x1="26.289" y1="11.176" x2="27.686" y2="11.176" width="0.2032" layer="22"/>
 <text x="7.874" y="30.099" size="1.27" layer="21" font="vector">MATRIX TOP</text>
 <text x="7.874" y="0.635" size="1.27" layer="21" font="vector">MATRIX BOTTOM</text>
+<wire x1="22.098" y1="6.985" x2="24.13" y2="6.985" width="0.2032" layer="21"/>
+<text x="2.032" y="17.78" size="1.27" layer="22" font="vector" rot="MR0">IN</text>
+<rectangle x1="0" y1="17.399" x2="2.413" y2="19.431" layer="43"/>
 </plain>
 <libraries>
 <library name="resistor">
@@ -1580,27 +1582,24 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="7.205" y="24.636" size="1.27" layer="22" rot="MR0"/>
 </element>
 <element name="LEDMATRIX" library="raspberrystem" package="8X8_LED_MATRIX" value="8X8_LED_MATRIX" x="16" y="16"/>
-<element name="R1" library="resistor" package="R0603" value="" x="24.5048" y="14.096" smashed="yes" rot="MR270">
+<element name="R1" library="resistor" package="R0603" value="10k" x="24.5048" y="14.096" smashed="yes" rot="MR270">
 <attribute name="NAME" x="23.3618" y="12.445" size="1.27" layer="26" rot="MR180"/>
-<attribute name="VALUE" x="26.5368" y="14.985" size="1.27" layer="28" rot="MR270"/>
 </element>
 <element name="C1" library="resistor" package="C0603" value="1uF" x="13.3952" y="12.4026" smashed="yes" rot="MR180">
 <attribute name="NAME" x="14.2842" y="11.6406" size="1.27" layer="26" rot="MR180"/>
 </element>
-<element name="PROG" library="raspberrystem" package="MA03-2" value="" x="27.7368" y="8.3566" smashed="yes" rot="R180">
+<element name="PROG" library="raspberrystem" package="MA03-2" value="NONE" x="27.7368" y="8.3566" smashed="yes" rot="R180">
 <attribute name="OC_NEWARK" value="unknown" x="27.7368" y="8.3566" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="MPN" value="" x="27.7368" y="8.3566" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="MF" value="" x="27.7368" y="8.3566" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="OC_FARNELL" value="unknown" x="27.7368" y="8.3566" size="1.778" layer="27" rot="R180" display="off"/>
-<attribute name="NAME" x="24.0538" y="7.5946" size="1.27" layer="25" ratio="10" rot="R180"/>
+<attribute name="NAME" x="22.0218" y="7.5946" size="1.27" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="JP1" library="raspberrystem" package="1X06" value="" x="4.826" y="16.9926" smashed="yes" rot="R270">
-<attribute name="NAME" x="0.3048" y="23.7998" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="1.651" y="24.6126" size="1.27" layer="27" rot="R270"/>
+<element name="JP1" library="raspberrystem" package="1X06" value="NONE" x="4.826" y="16.9926" smashed="yes" rot="R270">
+<attribute name="NAME" x="3.6068" y="8.1788" size="1.27" layer="25" ratio="10"/>
 </element>
-<element name="JP2" library="raspberrystem" package="1X06" value="" x="21.844" y="16.9926" smashed="yes" rot="R270">
-<attribute name="NAME" x="23.622" y="23.749" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="18.669" y="24.6126" size="1.27" layer="27" rot="R270"/>
+<element name="JP2" library="raspberrystem" package="1X06" value="NONE" x="21.844" y="16.9926" smashed="yes" rot="R270">
+<attribute name="NAME" x="19.939" y="8.128" size="1.27" layer="25" ratio="10"/>
 </element>
 </elements>
 <signals>
@@ -1816,6 +1815,8 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="4.826" y1="10.6426" x2="3.0226" y2="12.446" width="0.2032" layer="1"/>
 <wire x1="12.9794" y1="18.1356" x2="13.108" y2="18.011" width="0.2032" layer="1"/>
 <via x="14.0462" y="10.8458" extent="1-16" drill="0.3302"/>
+<contactref element="U2" pad="GND"/>
+<wire x1="5.6896" y1="16.891" x2="8.221" y2="15.111" width="0" layer="19" extent="1-16"/>
 </signal>
 <signal name="SCK">
 <contactref element="U1" pad="PB5"/>
@@ -2172,6 +2173,117 @@ Please make sure your boards conform to these design rules.</description>
 <via x="9.0678" y="6.223" extent="1-16" drill="0.3302"/>
 </signal>
 </signals>
+<errors>
+<approved hash="18,29,d3750edbff0a2ec8"/>
+<approved hash="18,29,995ede7afc067f26"/>
+<approved hash="18,29,4f7096b11590e7b4"/>
+<approved hash="18,29,b09c45e69cf94281"/>
+<approved hash="18,29,8eabcfadc7bafa60"/>
+<approved hash="18,29,8283cf6dc47af678"/>
+<approved hash="18,29,86dbcf6dc57af2b0"/>
+<approved hash="18,29,f613d32ddaba8228"/>
+<approved hash="18,29,f27bcb6dc27a81d0"/>
+<approved hash="18,29,faf3cf2dc53a8d88"/>
+<approved hash="18,29,fe23c06dc57a8598"/>
+<approved hash="18,29,f9cbc8adc53a8980"/>
+<approved hash="18,29,15a088367037c56e"/>
+<approved hash="18,29,eba16401ae359a48"/>
+<approved hash="18,29,8771573d2304e6b3"/>
+<approved hash="18,29,0f757f3d0304e6bf"/>
+<approved hash="18,29,d779073ca30506ba"/>
+<approved hash="18,29,df7daf3d030586c6"/>
+<approved hash="18,29,2701b73d230426c2"/>
+<approved hash="18,29,2f05df3c430426ce"/>
+<approved hash="18,29,7709e73c230486ca"/>
+<approved hash="18,29,7f0d8f3c430406d7"/>
+<approved hash="18,29,77c1829afe990bc5"/>
+<approved hash="18,29,7be4f633d47a4c56"/>
+<approved hash="18,29,53e87e33d47a6c52"/>
+<approved hash="18,29,2beda632347bcc5e"/>
+<approved hash="18,29,8391ae32b47a6c5a"/>
+<approved hash="18,29,9b955633147a4c26"/>
+<approved hash="18,29,f3995e33147b2c22"/>
+<approved hash="18,29,cb9d0633b47b4c2e"/>
+<approved hash="18,29,a3800e33347b2c2a"/>
+<approved hash="18,29,598119294c807301"/>
+<approved hash="18,29,dda5ef65ac3ae446"/>
+<approved hash="18,29,a985eb25abba9766"/>
+<approved hash="18,29,d5dde875ab8aeb4e"/>
+<approved hash="18,29,ac2deb55ab4a93de"/>
+<approved hash="18,29,d1b5efa5acdaef16"/>
+<approved hash="18,29,a015eb65a89a9f36"/>
+<approved hash="18,29,d97df735b44ae7ae"/>
+<approved hash="18,29,de4de7d5a48ae3be"/>
+<approved hash="18,29,cf89fd60c1e212cb"/>
+<approved hash="18,29,312542eb90140a35"/>
+<approved hash="18,30,14ae455462b6a3a4"/>
+<approved hash="18,30,b7c20240024fb7cd"/>
+<approved hash="18,30,6348cdcacdd66354"/>
+<approved hash="18,30,2cd6f954f9502cd2"/>
+<approved hash="18,30,d85ca4dea4dad858"/>
+<approved hash="18,30,85db5059502485a6"/>
+<approved hash="18,30,b12103a303aeb12c"/>
+<approved hash="18,30,62afcf2dcf2962ab"/>
+<approved hash="18,30,2e35fab7fab32e31"/>
+<approved hash="18,30,dbb3a631a63ddbbf"/>
+<approved hash="18,30,5e658de6b6ad70d6"/>
+<approved hash="18,30,35ae74397b5b8b24"/>
+<approved hash="18,30,2f5dbf9913605ba6"/>
+<approved hash="18,30,16aa6e664924a100"/>
+<approved hash="18,30,37aa5f0b50c98980"/>
+<approved hash="18,30,6aae371d6fc1a29a"/>
+<approved hash="18,30,219adaf5bccf6bac"/>
+<approved hash="18,30,831dfa720a4a3128"/>
+<approved hash="18,30,4bae0670762c8a1a"/>
+<approved hash="18,30,f549a7cba7c5f547"/>
+<approved hash="18,30,12a23bb21cf0a508"/>
+<approved hash="18,30,03bbdb20722ecbcf"/>
+<approved hash="18,30,33a20adf051d8d88"/>
+<approved hash="18,30,16ae79b15ef5a102"/>
+<approved hash="18,30,883f3fbd3fb28830"/>
+<approved hash="18,30,5cb5f037f02b5ca9"/>
+<approved hash="18,30,132bc4a9c4ad132f"/>
+<approved hash="18,30,e7a199239927e7a5"/>
+<approved hash="18,30,ba266da46dd9ba5b"/>
+<approved hash="18,30,8edc3e5e3e538ed1"/>
+<approved hash="18,30,5d52f2d0f2d45d56"/>
+<approved hash="18,30,11c8c74ac74e11cc"/>
+<approved hash="18,30,e44e9bcc9bc0e442"/>
+<approved hash="18,30,37ae48dc47188982"/>
+<approved hash="18,30,14aa50af778fa362"/>
+<approved hash="18,30,35aa61c26e628be2"/>
+<approved hash="18,30,cdbfc03ac641c84e"/>
+<approved hash="18,30,acac1b4d5b42eca3"/>
+<approved hash="18,30,7826d4c794db383a"/>
+<approved hash="18,30,37b8e059a05d77bc"/>
+<approved hash="18,30,c332bdd3fdd78336"/>
+<approved hash="18,30,9eb549540929dec8"/>
+<approved hash="18,30,aa4f1aae5aa3ea42"/>
+<approved hash="18,30,79c1d620962439c5"/>
+<approved hash="18,30,355be3baa3be755f"/>
+<approved hash="18,30,c0ddbf3cff3080d1"/>
+<approved hash="18,30,90be275f6750d0b1"/>
+<approved hash="18,30,4434e8d5a8c90428"/>
+<approved hash="18,30,0baadc4b9c4f4bae"/>
+<approved hash="18,30,ff2081c1c1c5bf24"/>
+<approved hash="18,30,a2a77546353be2da"/>
+<approved hash="18,30,965d26bc66b1d650"/>
+<approved hash="18,30,45d3ea32aa3605d7"/>
+<approved hash="18,30,0949dfa89fac494d"/>
+<approved hash="18,30,fccf832ec322bcc3"/>
+<approved hash="18,30,fea3e0b9428ddcc3"/>
+<approved hash="18,30,4de47dea97e1a7ef"/>
+<approved hash="18,30,9955e7caee9b9cf7"/>
+<approved hash="18,30,ff13382eaa742b42"/>
+<approved hash="18,30,c2aa8cefe09fd4a5"/>
+<approved hash="18,30,dba523e65d938868"/>
+<approved hash="18,30,206aa62f174a6581"/>
+<approved hash="18,30,8620b3ba1e398411"/>
+<approved hash="18,30,e161cfe9e5e7cb6f"/>
+<approved hash="18,30,36c4b3f233f1b6c7"/>
+<approved hash="18,30,948562054806be86"/>
+<approved hash="18,30,01e0e9d4e8740040"/>
+</errors>
 </board>
 </drawing>
 </eagle>
