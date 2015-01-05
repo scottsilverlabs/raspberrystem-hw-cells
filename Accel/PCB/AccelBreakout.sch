@@ -54,6 +54,7 @@
 <layer number="54" name="bGND_GNDA" color="1" fill="9" visible="no" active="no"/>
 <layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
 <layer number="57" name="tCAD" color="7" fill="1" visible="no" active="no"/>
+<layer number="90" name="Modules" color="5" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="93" name="Pins" color="2" fill="1" visible="no" active="yes"/>
@@ -5446,25 +5447,8 @@ type 0309, grid 2.5 mm</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="raspberrystem">
+<library name="AccelBreakout">
 <packages>
-<package name="MMA8653FCR1">
-<smd name="3" x="-0.9" y="0" dx="0.6" dy="0.225" layer="1"/>
-<smd name="8" x="0.9" y="0" dx="0.6" dy="0.225" layer="1"/>
-<smd name="9" x="0.9" y="0.4" dx="0.6" dy="0.225" layer="1"/>
-<smd name="2" x="-0.9" y="0.4" dx="0.6" dy="0.225" layer="1"/>
-<smd name="1" x="-0.9" y="0.8" dx="0.6" dy="0.225" layer="1"/>
-<smd name="10" x="0.9" y="0.8" dx="0.6" dy="0.225" layer="1"/>
-<smd name="7" x="0.9" y="-0.4" dx="0.6" dy="0.225" layer="1"/>
-<smd name="4" x="-0.9" y="-0.4" dx="0.6" dy="0.225" layer="1"/>
-<smd name="5" x="-0.9" y="-0.8" dx="0.6" dy="0.225" layer="1"/>
-<smd name="6" x="0.9" y="-0.8" dx="0.6" dy="0.225" layer="1"/>
-<wire x1="-1.016" y1="1.229" x2="1.5165" y2="1.229" width="0.127" layer="21"/>
-<wire x1="1.5165" y1="1.229" x2="1.5165" y2="-1.229" width="0.127" layer="21"/>
-<wire x1="1.5165" y1="-1.229" x2="-1.5165" y2="-1.229" width="0.127" layer="21"/>
-<wire x1="-1.5165" y1="-1.229" x2="-1.524" y2="0.762" width="0.127" layer="21"/>
-<wire x1="-1.524" y1="0.762" x2="-1.016" y2="1.229" width="0.127" layer="21"/>
-</package>
 <package name="1X03">
 <description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
 <pad name="1" x="-2.54" y="0" drill="1.016" shape="long" rot="R90"/>
@@ -5500,8 +5484,36 @@ type 0309, grid 2.5 mm</description>
 <rectangle x1="-0.381" y1="-2.921" x2="0.381" y2="-1.905" layer="21"/>
 <rectangle x1="2.159" y1="-2.921" x2="2.921" y2="-1.905" layer="21"/>
 </package>
+<package name="MMA8653FCR1">
+<smd name="3" x="-0.9" y="0" dx="0.6" dy="0.225" layer="1"/>
+<smd name="8" x="0.9" y="0" dx="0.6" dy="0.225" layer="1"/>
+<smd name="9" x="0.9" y="0.4" dx="0.6" dy="0.225" layer="1"/>
+<smd name="2" x="-0.9" y="0.4" dx="0.6" dy="0.225" layer="1"/>
+<smd name="1" x="-0.9" y="0.8" dx="0.6" dy="0.225" layer="1"/>
+<smd name="10" x="0.9" y="0.8" dx="0.6" dy="0.225" layer="1"/>
+<smd name="7" x="0.9" y="-0.4" dx="0.6" dy="0.225" layer="1"/>
+<smd name="4" x="-0.9" y="-0.4" dx="0.6" dy="0.225" layer="1"/>
+<smd name="5" x="-0.9" y="-0.8" dx="0.6" dy="0.225" layer="1"/>
+<smd name="6" x="0.9" y="-0.8" dx="0.6" dy="0.225" layer="1"/>
+<wire x1="-1.016" y1="1.229" x2="1.5165" y2="1.229" width="0.127" layer="21"/>
+<wire x1="1.5165" y1="1.229" x2="1.5165" y2="-1.229" width="0.127" layer="21"/>
+<wire x1="1.5165" y1="-1.229" x2="-1.5165" y2="-1.229" width="0.127" layer="21"/>
+<wire x1="-1.5165" y1="-1.229" x2="-1.524" y2="0.762" width="0.127" layer="21"/>
+<wire x1="-1.524" y1="0.762" x2="-1.016" y2="1.229" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
+<symbol name="PINHD3">
+<wire x1="-6.35" y1="-5.08" x2="1.27" y2="-5.08" width="0.4064" layer="94"/>
+<wire x1="1.27" y1="-5.08" x2="1.27" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="1.27" y1="5.08" x2="-6.35" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="-6.35" y1="5.08" x2="-6.35" y2="-5.08" width="0.4064" layer="94"/>
+<text x="-6.35" y="5.715" size="1.778" layer="95">&gt;NAME</text>
+<text x="-6.35" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="1" x="-2.54" y="2.54" visible="pad" length="short" direction="pas" function="dot"/>
+<pin name="2" x="-2.54" y="0" visible="pad" length="short" direction="pas" function="dot"/>
+<pin name="3" x="-2.54" y="-2.54" visible="pad" length="short" direction="pas" function="dot"/>
+</symbol>
 <symbol name="MMA8653FCR1">
 <wire x1="-12.7" y1="12.7" x2="12.7" y2="12.7" width="0.254" layer="94"/>
 <wire x1="12.7" y1="12.7" x2="12.7" y2="-12.7" width="0.254" layer="94"/>
@@ -5518,43 +5530,8 @@ type 0309, grid 2.5 mm</description>
 <pin name="AAGND" x="15.24" y="5.08" length="short" rot="R180"/>
 <pin name="SDA" x="15.24" y="10.16" length="short" rot="R180"/>
 </symbol>
-<symbol name="PINHD3">
-<wire x1="-6.35" y1="-5.08" x2="1.27" y2="-5.08" width="0.4064" layer="94"/>
-<wire x1="1.27" y1="-5.08" x2="1.27" y2="5.08" width="0.4064" layer="94"/>
-<wire x1="1.27" y1="5.08" x2="-6.35" y2="5.08" width="0.4064" layer="94"/>
-<wire x1="-6.35" y1="5.08" x2="-6.35" y2="-5.08" width="0.4064" layer="94"/>
-<text x="-6.35" y="5.715" size="1.778" layer="95">&gt;NAME</text>
-<text x="-6.35" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="1" x="-2.54" y="2.54" visible="pad" length="short" direction="pas" function="dot"/>
-<pin name="2" x="-2.54" y="0" visible="pad" length="short" direction="pas" function="dot"/>
-<pin name="3" x="-2.54" y="-2.54" visible="pad" length="short" direction="pas" function="dot"/>
-</symbol>
 </symbols>
 <devicesets>
-<deviceset name="MMA8653FCR1">
-<gates>
-<gate name="G$1" symbol="MMA8653FCR1" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="MMA8653FCR1">
-<connects>
-<connect gate="G$1" pin="AAGND" pad="9"/>
-<connect gate="G$1" pin="AGND" pad="7"/>
-<connect gate="G$1" pin="BYP" pad="4"/>
-<connect gate="G$1" pin="GND" pad="6"/>
-<connect gate="G$1" pin="INT1" pad="3"/>
-<connect gate="G$1" pin="INT2" pad="5"/>
-<connect gate="G$1" pin="SCL" pad="2"/>
-<connect gate="G$1" pin="SDA" pad="10"/>
-<connect gate="G$1" pin="VDD" pad="1"/>
-<connect gate="G$1" pin="VDDIO" pad="8"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="PINHD-1X3" prefix="JP" uservalue="yes">
 <description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
 <gates>
@@ -5583,6 +5560,30 @@ type 0309, grid 2.5 mm</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="MMA8653FCR1">
+<gates>
+<gate name="G$1" symbol="MMA8653FCR1" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="MMA8653FCR1">
+<connects>
+<connect gate="G$1" pin="AAGND" pad="9"/>
+<connect gate="G$1" pin="AGND" pad="7"/>
+<connect gate="G$1" pin="BYP" pad="4"/>
+<connect gate="G$1" pin="GND" pad="6"/>
+<connect gate="G$1" pin="INT1" pad="3"/>
+<connect gate="G$1" pin="INT2" pad="5"/>
+<connect gate="G$1" pin="SCL" pad="2"/>
+<connect gate="G$1" pin="SDA" pad="10"/>
+<connect gate="G$1" pin="VDD" pad="1"/>
+<connect gate="G$1" pin="VDDIO" pad="8"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -5595,7 +5596,7 @@ type 0309, grid 2.5 mm</description>
 </class>
 </classes>
 <parts>
-<part name="U1" library="raspberrystem" deviceset="MMA8653FCR1" device=""/>
+<part name="U1" library="AccelBreakout" deviceset="MMA8653FCR1" device=""/>
 <part name="SUPPLY17" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="C1" library="resistor" deviceset="C-US" device="C0603" value="0.1uF"/>
 <part name="C2" library="resistor" deviceset="C-US" device="C0603" value="1uF"/>
@@ -5611,8 +5612,8 @@ type 0309, grid 2.5 mm</description>
 <part name="R2" library="resistor" deviceset="R-US_" device="R0603" value="10K"/>
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="GND1" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="J2" library="raspberrystem" deviceset="PINHD-1X3" device=""/>
-<part name="J1" library="raspberrystem" deviceset="PINHD-1X3" device=""/>
+<part name="J2" library="AccelBreakout" deviceset="PINHD-1X3" device=""/>
+<part name="J1" library="AccelBreakout" deviceset="PINHD-1X3" device=""/>
 </parts>
 <sheets>
 <sheet>
