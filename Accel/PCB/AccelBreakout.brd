@@ -13,21 +13,21 @@
 <layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
 <layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
 <layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
 <layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
-<layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
+<layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="yes" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="yes" active="yes"/>
 <layer number="33" name="tFinish" color="6" fill="3" visible="yes" active="yes"/>
@@ -139,6 +139,9 @@
 <text x="5.969" y="17.526" size="0.6096" layer="22" font="vector" rot="SMR180" align="bottom-right">SCL</text>
 <text x="3.429" y="0.762" size="0.6096" layer="22" font="vector" rot="SMR180" align="bottom-right">INT1</text>
 <text x="5.969" y="0.762" size="0.6096" layer="22" font="vector" rot="SMR180" align="bottom-right">INT2</text>
+<text x="8.89" y="13.208" size="0.6096" layer="21" font="vector" rot="SR180">(c) 2015
+RaspberrySTEM</text>
+<text x="4.318" y="5.08" size="0.6096" layer="21" font="vector" rot="SR180">Rev-00a</text>
 </plain>
 <libraries>
 <library name="resistor">
@@ -1488,11 +1491,11 @@ Please make sure your boards conform to these design rules.</description>
 <element name="C4" library="resistor" package="C0603" value="0.1uF" x="9.144" y="8.128" smashed="yes" rot="R270">
 <attribute name="NAME" x="9.652" y="6.35" size="0.6096" layer="25" font="vector" rot="SR180"/>
 </element>
-<element name="R1" library="resistor" package="R0603" value="10K" x="2.286" y="10.922" smashed="yes" rot="R180">
-<attribute name="NAME" x="3.556" y="12.446" size="0.6096" layer="25" font="vector" rot="SR180"/>
+<element name="R1" library="resistor" package="R0603" value="10K" x="2.032" y="10.922" smashed="yes" rot="R180">
+<attribute name="NAME" x="4.572" y="11.43" size="0.6096" layer="25" font="vector" rot="SR180"/>
 </element>
 <element name="R2" library="resistor" package="R0603" value="10K" x="6.35" y="10.668" smashed="yes" rot="R180">
-<attribute name="NAME" x="7.62" y="12.192" size="0.6096" layer="25" font="vector" rot="SR180"/>
+<attribute name="NAME" x="8.89" y="11.176" size="0.6096" layer="25" font="vector" rot="SR180"/>
 </element>
 <element name="J2" library="raspberrystem" package="1X03" value="" x="5.08" y="15.24" smashed="yes">
 <attribute name="NAME" x="9.5758" y="14.7828" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
@@ -1527,10 +1530,10 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="7.25" y1="8.128" x2="8.294" y2="8.128" width="0.2032" layer="1"/>
 <wire x1="8.294" y1="8.128" x2="9.144" y2="8.978" width="0.2032" layer="1"/>
 <wire x1="1.2446" y1="9.0678" x2="1.2446" y2="10.9846" width="0.2032" layer="1"/>
-<wire x1="1.2446" y1="10.9846" x2="1.436" y2="10.922" width="0.2032" layer="1"/>
+<wire x1="1.2446" y1="10.9846" x2="1.182" y2="10.922" width="0.2032" layer="1"/>
 <wire x1="2.4892" y1="15.24" x2="2.54" y2="15.24" width="0.2032" layer="1"/>
-<wire x1="1.436" y1="10.922" x2="1.436" y2="14.136" width="0.2032" layer="1"/>
-<wire x1="1.436" y1="14.136" x2="2.54" y2="15.24" width="0.2032" layer="1"/>
+<wire x1="1.182" y1="10.922" x2="1.182" y2="13.882" width="0.2032" layer="1"/>
+<wire x1="1.182" y1="13.882" x2="2.54" y2="15.24" width="0.2032" layer="1"/>
 <wire x1="9.144" y1="8.978" x2="9.144" y2="16.002" width="0.2032" layer="1"/>
 <wire x1="9.144" y1="16.002" x2="7.874" y2="17.272" width="0.2032" layer="1"/>
 <wire x1="5.5" y1="10.668" x2="5.5" y2="13.0048" width="0.2032" layer="1"/>
@@ -1603,7 +1606,7 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="4.572" y1="8.9408" x2="4.572" y2="10.922" width="0.2032" layer="1"/>
 <wire x1="4.572" y1="10.922" x2="4.572" y2="14.732" width="0.2032" layer="1"/>
 <wire x1="4.572" y1="14.732" x2="5.08" y2="15.24" width="0.2032" layer="1"/>
-<wire x1="3.136" y1="10.922" x2="4.572" y2="10.922" width="0.2032" layer="1"/>
+<wire x1="2.882" y1="10.922" x2="4.572" y2="10.922" width="0.2032" layer="1"/>
 </signal>
 <signal name="INT1">
 <contactref element="U1" pad="3"/>
@@ -1627,4 +1630,10 @@ Please make sure your boards conform to these design rules.</description>
 </signals>
 </board>
 </drawing>
+<compatibility>
+<note version="6.3" minversion="6.2.2" severity="warning">
+Since Version 6.2.2 text objects can contain more than one line,
+which will not be processed correctly with this version.
+</note>
+</compatibility>
 </eagle>
