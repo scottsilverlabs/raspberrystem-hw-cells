@@ -49,15 +49,14 @@
 
 #define REFRESH_RATE_HZ 120
 #define REFRESH_RATE_US (1000000/REFRESH_RATE_HZ)
+
+// POST (Power-On Self Test) parameters
 #define POST_BARS_DELAY_US (40000)
 #define POST_PLUS_DELAY_US (20000)
 #define POST_PLUS_GRADIENT_US (1000000)
 
-// SPI ping-pong packed framebuffer storage
-volatile unsigned char arr1[PACKED_FB_SIZE];
-volatile unsigned char arr2[PACKED_FB_SIZE];
-volatile unsigned char * swap;
-volatile unsigned char * show;
+// SPI packed shift-register storage
+volatile unsigned char store_array[PACKED_FB_SIZE];
 
 // Unpacked framebuffer.  Each pixel is a color converted to PWM value.
 // fb2 is just for use for POST concentric squares test.
@@ -146,11 +145,8 @@ int main(void) {
     SPSR = (1 << SPI2X);
 
     // Initialize SPI ring buffers
-    memset((void *) arr1, 0, sizeof(arr1));
-    memset((void *) arr2, 0, sizeof(arr2));
-    store = arr1;
-    show = arr2;
-
+    memset((void *) store_array, 0, sizeof(store_array));
+    store = store_array;
 
     // Prep SPI transmit with first byte from ring buffer
     isr_hasnt_occured = 1;
@@ -283,16 +279,12 @@ int main(void) {
 
         // If it has just received data
         if ( ! isr_hasnt_occured && ! IS_CS_ACTIVE()) {
-            // Swap store/show SPI data buffer pointers and reset for the next
+            // Copy store SPI data to framebuffer and reset for the next
             // ISR.  Don't let ISR occur here, although we still must get it
             // in a reasonable time or we'll overwrite the SPI data buffer.
             cli();
-            swap = store;
-            store = show;
-            show = swap;
             isr_hasnt_occured = 1;
             store_index = 0;
-            sei();
 
             // Copy from packed SPI data to expanded frame buffer.  Rationale:
             // unpack here to minimize work in display loop which occurs more
@@ -300,11 +292,12 @@ int main(void) {
             unsigned char i = 0;
             for (unsigned char col = 0; col < NUM_COLS; col++) {
                 for (unsigned char row = 0; row < NUM_ROWS; row += 2) {
-                    fb[col][row] = color_to_pwm(show[i] & MAX_COLOR);
-                    fb[col][row + 1] = color_to_pwm(show[i] >> 4);
+                    fb[col][row] = color_to_pwm(store[i] & MAX_COLOR);
+                    fb[col][row + 1] = color_to_pwm(store[i] >> 4);
                     i++;
                 }
             }
+            sei();
         } else {
             // Scan columns
             for(unsigned char col = 0; col < NUM_COLS; col++) {
