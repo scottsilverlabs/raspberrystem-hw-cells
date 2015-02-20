@@ -5671,12 +5671,12 @@ LETTER landscape</description>
 <wire x1="3.175" y1="2.54" x2="3.81" y2="1.905" width="0.1524" layer="22"/>
 <wire x1="3.81" y1="1.905" x2="3.81" y2="-1.905" width="0.1524" layer="22"/>
 <wire x1="1.905" y1="-2.54" x2="3.175" y2="-2.54" width="0.1524" layer="22"/>
-<pad name="1" x="-2.54" y="-1.27" drill="1.016" shape="octagon"/>
-<pad name="2" x="-2.54" y="1.27" drill="1.016" shape="octagon"/>
-<pad name="3" x="0" y="-1.27" drill="1.016" shape="octagon"/>
-<pad name="4" x="0" y="1.27" drill="1.016" shape="octagon"/>
-<pad name="5" x="2.54" y="-1.27" drill="1.016" shape="square"/>
-<pad name="6" x="2.54" y="1.27" drill="1.016" shape="octagon"/>
+<pad name="1" x="-2.54" y="-1.27" drill="0.508" diameter="1.524" shape="octagon"/>
+<pad name="2" x="-2.54" y="1.27" drill="0.508" diameter="1.524" shape="octagon"/>
+<pad name="3" x="0" y="-1.27" drill="0.508" diameter="1.524" shape="octagon"/>
+<pad name="4" x="0" y="1.27" drill="0.508" diameter="1.524" shape="octagon"/>
+<pad name="5" x="2.54" y="-1.27" drill="0.508" diameter="1.524" shape="square"/>
+<pad name="6" x="2.54" y="1.27" drill="0.508" diameter="1.524" shape="octagon"/>
 <text x="-3.81" y="3.175" size="1.27" layer="22" ratio="10">&gt;NAME</text>
 <text x="-3.81" y="-4.445" size="1.27" layer="22">&gt;VALUE</text>
 <rectangle x1="-2.794" y1="-1.524" x2="-2.286" y2="-1.016" layer="22"/>
