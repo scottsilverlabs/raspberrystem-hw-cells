@@ -57,6 +57,7 @@
 
 // SPI packed shift-register storage
 volatile unsigned char store_array[PACKED_FB_SIZE];
+volatile unsigned char store_array_copy[PACKED_FB_SIZE];
 
 // Unpacked framebuffer.  Each pixel is a color converted to PWM value.
 // fb2 is just for use for POST concentric squares test.
@@ -282,9 +283,17 @@ int main(void) {
             // Copy store SPI data to framebuffer and reset for the next
             // ISR.  Don't let ISR occur here, although we still must get it
             // in a reasonable time or we'll overwrite the SPI data buffer.
+            //
+            // Optimization: to make this extra fast, we add an extra buffer
+            // here (store_array_copy).  That way we can unpack it at our
+            // leisure when we've turned interrupts back on.  This optimization
+            // is required when the host processor is updating the matrix as
+            // fast as possible (otherwise overruns occur).
             cli();
             isr_hasnt_occured = 1;
             store_index = 0;
+            memcpy(store_array_copy, store_array, PACKED_FB_SIZE);
+            sei();
 
             // Copy from packed SPI data to expanded frame buffer.  Rationale:
             // unpack here to minimize work in display loop which occurs more
@@ -292,12 +301,11 @@ int main(void) {
             unsigned char i = 0;
             for (unsigned char col = 0; col < NUM_COLS; col++) {
                 for (unsigned char row = 0; row < NUM_ROWS; row += 2) {
-                    fb[col][row] = color_to_pwm(store[i] & MAX_COLOR);
-                    fb[col][row + 1] = color_to_pwm(store[i] >> 4);
+                    fb[col][row] = color_to_pwm(store_array_copy[i] & MAX_COLOR);
+                    fb[col][row + 1] = color_to_pwm(store_array_copy[i] >> 4);
                     i++;
                 }
             }
-            sei();
         } else {
             // Scan columns
             for(unsigned char col = 0; col < NUM_COLS; col++) {
