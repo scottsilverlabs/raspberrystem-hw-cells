@@ -22,6 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+// VERSION.  For better viewing, version major/minor should be non-zero (i.e.
+// start minor versions at 1, not 0).
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 1
+
 // The column port fits nicely on one port, where each pin maps directly to a
 // column - this makes column scanning easy.  Not so with the rows, which have
 // to be mapped, and are on different ports.
@@ -36,7 +41,9 @@
 #define ROW7 (1<<PORTC5)
 
 #define NUM_COLS 8
+#define HALF_COLS 4
 #define NUM_ROWS 8
+#define HALF_ROWS 4
 
 #define NUM_COLORS 16
 #define MAX_COLOR (NUM_COLORS - 1)
@@ -52,8 +59,9 @@
 
 // POST (Power-On Self Test) parameters
 #define POST_BARS_DELAY_US (40000)
-#define POST_PLUS_DELAY_US (20000)
-#define POST_PLUS_GRADIENT_US (1000000)
+#define POST_CONCENTRIC_SQUARE_ANIMATION_DELAY_US (20000)
+#define POST_GRADIENT_DELAY_US (1000000)
+#define POST_DISPLAY_VERSION_DELAY_US (1000000)
 
 // SPI packed shift-register storage
 volatile unsigned char store_array[PACKED_FB_SIZE];
@@ -68,12 +76,14 @@ typedef enum {
     START,
     POST_VERTICAL_BARS,
     POST_HORIZONTAL_BARS,
-    POST_PLUS,
-    POST_PLUS_2,
-    POST_PLUS_3,
-    POST_PLUS_4,
+    POST_GRADIENT,
+    POST_GRADIENT_2,
+    POST_CONCENTRIC_SQUARE_ANIMATION,
+    POST_CONCENTRIC_SQUARE_ANIMATION_2,
+    POST_DISPLAY_VERSION,
+    POST_DISPLAY_VERSION_2,
     RUNNING,
-    RUNNING_1,
+    RUNNING_2,
 } STATE;
 
 // All variables used in the ISR have been hand optimized to registers
@@ -155,7 +165,7 @@ int main(void) {
     SPDR = store[store_index];
 
     for(;;) {
-        if (state == RUNNING_1) {
+        if (state == RUNNING_2) {
             // Do nothing.  This state is out of order, because its the
             // "normal" state, and therefore we've optimized by putting the
             // test for it first.
@@ -192,44 +202,81 @@ int main(void) {
                 post_row++;
                 if (post_row == NUM_ROWS) {
                     if (IS_CS_ACTIVE()) {
-                        state = POST_PLUS;
+                        state = POST_GRADIENT;
                     } else {
                         state = RUNNING;
                     }
                 }
             }
 
-        } else if (state == POST_PLUS) {
+        } else if (state == POST_GRADIENT) {
             // Fill the framebuffer with a gradient of all colors
             for (unsigned char col = 0; col < NUM_COLS; col++) {
-                for (unsigned char row = 0; row < NUM_ROWS/2; row++) {
+                for (unsigned char row = 0; row < HALF_ROWS; row++) {
                     fb[col][row] = color_to_pwm(col);
                 }
             }
             for (unsigned char col = 0; col < NUM_COLS; col++) {
-                for (unsigned char row = NUM_ROWS/2; row < NUM_ROWS; row++) {
+                for (unsigned char row = HALF_ROWS; row < NUM_ROWS; row++) {
                     fb[col][row] = color_to_pwm(MAX_COLOR - col);
                 }
             }
             post_count = 0;
-            state = POST_PLUS_2;
+            state = POST_GRADIENT_2;
 
-        } else if (state == POST_PLUS_2) {
-            // State on the gradient for a while
-            if (post_count < (POST_PLUS_GRADIENT_US / REFRESH_RATE_US)) {
+        } else if (state == POST_GRADIENT_2) {
+            // Stay on this screen for a while
+            if (post_count < (POST_GRADIENT_DELAY_US / REFRESH_RATE_US)) {
                 post_count++;
             } else {
-                state = POST_PLUS_3;
+                state = POST_DISPLAY_VERSION;
             }
 
             if ( ! IS_CS_ACTIVE()) {
                 state = RUNNING;
             }
 
-        } else if (state == POST_PLUS_3) {
+        } else if (state == POST_DISPLAY_VERSION) {
+            // Erase display
+            for (unsigned char col = 0; col < NUM_COLS; col++) {
+                for (unsigned char row = 0; row < NUM_ROWS; row++) {
+                    fb[col][row] = 0;
+                }
+            }
+
+            // Top row solid, provides visual orintaion of screen if rotated.
+            for (unsigned char col = 0; col < NUM_COLS; col++) {
+                fb[col][NUM_ROWS-1] = color_to_pwm(MAX_COLOR);
+            }
+
+            // Bottom row version
+            // TBD: Future rows other info?
+            for (unsigned char col = 0; col < HALF_COLS; col++) {
+                fb[col][0] = VERSION_MAJOR & (1<<(HALF_COLS-col-1)) ? color_to_pwm(MAX_COLOR) : 0;
+            }
+            for (unsigned char col = 0; col < HALF_COLS; col++) {
+                fb[col+HALF_COLS][0] = VERSION_MINOR & (1<<(HALF_COLS-col-1)) ? color_to_pwm(MAX_COLOR) : 0;
+            }
+
+            post_count = 0;
+            state = POST_DISPLAY_VERSION_2;
+
+        } else if (state == POST_DISPLAY_VERSION_2) {
+            // Stay on this screen for a while
+            if (post_count < (POST_GRADIENT_DELAY_US / REFRESH_RATE_US)) {
+                post_count++;
+            } else {
+                state = POST_CONCENTRIC_SQUARE_ANIMATION;
+            }
+
+            if ( ! IS_CS_ACTIVE()) {
+                state = RUNNING;
+            }
+
+        } else if (state == POST_CONCENTRIC_SQUARE_ANIMATION) {
             // Assuming NUM_COLS == NUM_ROWS, create concentric squares of
             // varying intensities
-            for (unsigned char i = 0; i < NUM_COLS/2; i++) {
+            for (unsigned char i = 0; i < HALF_COLS; i++) {
                 for (unsigned char r = i; r < NUM_COLS - i; r++) {
                     unsigned char color = 4 * i;
                     fb2[r][i] = color;
@@ -238,11 +285,11 @@ int main(void) {
                     fb2[NUM_COLS - i - 1][r] = color;
                 }
             }
-            state = POST_PLUS_4;
+            state = POST_CONCENTRIC_SQUARE_ANIMATION_2;
 
-        } else if (state == POST_PLUS_4) {
+        } else if (state == POST_CONCENTRIC_SQUARE_ANIMATION_2) {
             // Increment the intensity of all pixels in the framebuffer.
-            if (post_count < (POST_PLUS_DELAY_US / REFRESH_RATE_US)) {
+            if (post_count < (POST_CONCENTRIC_SQUARE_ANIMATION_DELAY_US / REFRESH_RATE_US)) {
                 post_count++;
             } else {
                 post_count = 0;
@@ -275,7 +322,7 @@ int main(void) {
 
             // Enable global interrupts, allowing SPI recevies
             sei();
-            state = RUNNING_1;
+            state = RUNNING_2;
         }
 
         // If it has just received data
