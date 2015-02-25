@@ -292,7 +292,7 @@ int main(void) {
             cli();
             isr_hasnt_occured = 1;
             store_index = 0;
-            memcpy(store_array_copy, store_array, PACKED_FB_SIZE);
+            memcpy((void *) store_array_copy, (void *) store_array, PACKED_FB_SIZE);
             sei();
 
             // Copy from packed SPI data to expanded frame buffer.  Rationale:
