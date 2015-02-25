@@ -25,7 +25,7 @@
 // VERSION.  For better viewing, version major/minor should be non-zero (i.e.
 // start minor versions at 1, not 0).
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 1
+#define VERSION_MINOR 2
 
 // The column port fits nicely on one port, where each pin maps directly to a
 // column - this makes column scanning easy.  Not so with the rows, which have
@@ -318,10 +318,16 @@ int main(void) {
             }
 
         } else if (state == RUNNING) {
-            memset((void *) fb, 0, sizeof(fb));
 
             // Enable global interrupts, allowing SPI recevies
             sei();
+
+            // Single spurious interrupt sometimes occurs right after
+            // interrupts are enabled.  To combat this, we'll forcibly blank
+            // the buffers here.
+            memset((void *) store_array, 0, sizeof(store_array));
+            memset((void *) fb, 0, sizeof(fb));
+
             state = RUNNING_2;
         }
 
