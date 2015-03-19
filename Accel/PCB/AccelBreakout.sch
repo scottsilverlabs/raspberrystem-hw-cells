@@ -3133,6 +3133,7 @@ Metric Code Size 5664</description>
 <pin name="VDDIO" x="15.24" y="0" length="short" rot="R180"/>
 <pin name="AAGND" x="15.24" y="5.08" length="short" rot="R180"/>
 <pin name="SDA" x="15.24" y="10.16" length="short" rot="R180"/>
+<text x="-12.7" y="15.24" size="1.778" layer="95">&gt;NAME</text>
 </symbol>
 <symbol name="R-US">
 <wire x1="-2.54" y1="0" x2="-2.159" y2="1.016" width="0.2032" layer="94"/>
