@@ -46,8 +46,14 @@ ifneq ($(words $(SCH)),1)
 endif
 
 NAME=$(basename $(SCH))
-BRD=$(NAME).brd
 BOM=$(NAME)_BOM.xls
+
+# Get board rev from BRD file.
+BRD=$(NAME).brd
+BRD_REV=$(shell grep -o Rev-[0-9][0-9][a-z] $(BRD))
+ifeq ($(BRD_REV),)
+  BRD_REV=XXX
+endif
 
 # Eagle Library - its okay if it doesn't exist
 LIB=$(NAME).lbr
@@ -61,7 +67,9 @@ GERBERS=$(addprefix gerbers/$(NAME).,$(GERBER_EXTENSIONS))
 README=README.txt
 
 SOURCES=$(SCH) $(BRD) $(LIB) $(BOM) $(README) $(GERBERS)
-ZIP=$(NAME).zip
+
+# ZIP output file name contains file rev
+ZIP=$(NAME)-$(BRD_REV).zip
 
 $(ZIP): $(SOURCES)
 	zip $@ $^
